@@ -131,7 +131,7 @@ Please provide a concise, personalized, and detailed PCOS Risk Analysis report w
                 {"role": "system", "content": "You are a helpful assistant providing health-related insights."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=500,
+            max_tokens=200,
         )
         # Use dictionary indexing to access the report content.
         return response["choices"][0]["message"]["content"]
