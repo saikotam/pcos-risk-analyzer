@@ -3,20 +3,20 @@ import openai
 import requests
 from datetime import datetime
 
-# Securely load API keys using Streamlit secrets
+# Securely load API keys using Streamlit secrets.
 openai.api_key = st.secrets["openai"]["api_key"]
 zapier_webhook_url = st.secrets["zapier"]["webhook_url"]
 
-# Set up the page configuration
+# Set up the page configuration.
 st.set_page_config(page_title="Instant PCOS Risk Analyzer", layout="centered")
 
-# App Title and Subtitle
+# App Title and Subtitle.
 st.title("Instant PCOS Risk Analyzer")
 st.subheader("Powered by AI")
 st.write("Welcome! Let's begin your PCOS screening. Please answer the following questions:")
 
 # -----------------------------
-# PCOS Screening Questions
+# PCOS Screening Questions.
 # -----------------------------
 cycle_regularity = st.radio(
     "1. How regular is your menstrual cycle?",
@@ -49,11 +49,11 @@ physical_activity = st.radio(
 )
 
 # -----------------------------
-# Helper Functions
+# Helper Functions.
 # -----------------------------
 def calculate_pcos_score():
     score = 0
-    # Cycle Regularity
+    # Cycle Regularity.
     if cycle_regularity == "Regular":
         score += 0
     elif cycle_regularity == "Occasionally irregular":
@@ -61,7 +61,7 @@ def calculate_pcos_score():
     elif cycle_regularity == "Mostly irregular":
         score += 2
 
-    # Excess Facial/Body Hair
+    # Excess Facial/Body Hair.
     if excess_hair == "None":
         score += 0
     elif excess_hair == "Mild":
@@ -69,7 +69,7 @@ def calculate_pcos_score():
     elif excess_hair == "Significant":
         score += 2
 
-    # Weight Gain Difficulty
+    # Weight Gain Difficulty.
     if weight_gain == "None":
         score += 0
     elif weight_gain == "Moderate":
@@ -77,7 +77,7 @@ def calculate_pcos_score():
     elif weight_gain == "Severe":
         score += 2
 
-    # Acne or Skin Issues
+    # Acne or Skin Issues.
     if acne_skin == "None":
         score += 0
     elif acne_skin == "Mild":
@@ -85,7 +85,7 @@ def calculate_pcos_score():
     elif acne_skin == "Severe":
         score += 2
 
-    # Mood Swings or Anxiety
+    # Mood Swings or Anxiety.
     if mood_swings == "Rare":
         score += 0
     elif mood_swings == "Occasionally":
@@ -93,7 +93,7 @@ def calculate_pcos_score():
     elif mood_swings == "Frequent":
         score += 2
 
-    # Physical Activity (less activity = higher risk)
+    # Physical Activity (less activity = higher risk).
     if physical_activity == "<1 hr":
         score += 2
     elif physical_activity == "1-3 hrs":
@@ -126,19 +126,20 @@ Please provide a concise, personalized, and detailed PCOS Risk Analysis report w
     """
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # You can change to "gpt-4" if available
+            model="gpt-3.5-turbo",  # Change to "gpt-4" if available.
             messages=[
                 {"role": "system", "content": "You are a helpful assistant providing health-related insights."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=500,
         )
-        return response.choices[0].message['content']
+        # Use dictionary indexing to access the report content.
+        return response["choices"][0]["message"]["content"]
     except Exception as e:
         return f"Error generating report: {e}"
 
 # -----------------------------
-# Process PCOS Screening Submission
+# Process PCOS Screening Submission.
 # -----------------------------
 if st.button("Submit"):
     total_score = calculate_pcos_score()
@@ -153,14 +154,14 @@ if st.button("Submit"):
     }
     pcos_report = get_pcos_report(total_score, responses)
 
-    # Store data in session state for later use
+    # Save key data in session state.
     st.session_state["total_score"] = total_score
     st.session_state["risk_category"] = risk_category
     st.session_state["responses"] = responses
     st.session_state["pcos_report"] = pcos_report
 
 # -----------------------------
-# Display Report & Demographic Data Capture Form
+# Display Report & Demographic Data Capture Form.
 # -----------------------------
 if "pcos_report" in st.session_state:
     st.write("---")
