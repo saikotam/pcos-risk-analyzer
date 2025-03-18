@@ -3,21 +3,17 @@ import openai
 import requests
 from datetime import datetime
 
-# Securely handle API keys using Streamlit secrets.
+# Securely load API keys using Streamlit secrets
 openai.api_key = st.secrets["openai"]["api_key"]
 zapier_webhook_url = st.secrets["zapier"]["webhook_url"]
 
-# Set up the page configuration for a minimal, professional UI.
+# Set up the page configuration
 st.set_page_config(page_title="Instant PCOS Risk Analyzer", layout="centered")
 
 # App Title and Subtitle
 st.title("Instant PCOS Risk Analyzer")
 st.subheader("Powered by AI")
-
 st.write("Welcome! Let's begin your PCOS screening. Please answer the following questions:")
-
-# Chatbot-style introduction
-st.write("**Assistant:** Hi there! I'm here to help assess your PCOS risk. Let's start with a few questions.")
 
 # -----------------------------
 # PCOS Screening Questions
@@ -128,18 +124,21 @@ Based on the following PCOS screening responses:
 The total risk score is {score}, which indicates a {get_risk_category(score)}.
 Please provide a concise, personalized, and detailed PCOS Risk Analysis report with actionable recommendations for lifestyle modifications, potential treatments, and guidance for further medical consultation.
     """
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # Change to "gpt-4" if available
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant providing health-related insights."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500,
-    )
-    return response.choices[0].message['content']
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # You can change to "gpt-4" if available
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant providing health-related insights."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500,
+        )
+        return response.choices[0].message['content']
+    except Exception as e:
+        return f"Error generating report: {e}"
 
 # -----------------------------
-# Process Submission
+# Process PCOS Screening Submission
 # -----------------------------
 if st.button("Submit"):
     total_score = calculate_pcos_score()
@@ -152,18 +151,16 @@ if st.button("Submit"):
         "Mood Swings or Anxiety": mood_swings,
         "Physical Activity per Week": physical_activity
     }
-    
-    # Generate AI-powered PCOS report via OpenAI API.
     pcos_report = get_pcos_report(total_score, responses)
-    
-    # Save key data to session state for later use.
+
+    # Store data in session state for later use
     st.session_state["total_score"] = total_score
     st.session_state["risk_category"] = risk_category
     st.session_state["responses"] = responses
     st.session_state["pcos_report"] = pcos_report
 
 # -----------------------------
-# Display Report & Demographic Form
+# Display Report & Demographic Data Capture Form
 # -----------------------------
 if "pcos_report" in st.session_state:
     st.write("---")
